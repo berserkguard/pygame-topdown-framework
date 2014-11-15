@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 from config import *
 from spritesheet import *
 
@@ -23,6 +24,20 @@ class Player():
         
         # Maximum speed of the player (in pixels/second)
         self.speed = 200.0
+        
+        # The body part status (1.0 to 0.0)
+        self.antenna_status = 1.0
+        self.head_status = 1.0
+        self.body_status = 1.0
+        self.right_arm_status = 1.0
+        self.left_arm_status = 1.0
+        self.right_leg_status = 1.0
+        self.left_leg_status = 1.0
+        
+        self.status = [self.antenna_status, self.head_status, self.body_status, self.right_arm_status, self.left_arm_status, self.right_leg_status, self.left_leg_status]
+        
+        # Time passed since last body part degradation. Chance of degradation increases with time.
+        self.time_since_last_degrade = 0
         
     def render(self, screen, game):
         sprite = self.spritesheet.get_sprite(self.sprite_idx)
@@ -62,7 +77,7 @@ class Player():
                 self.sprite_idx += 1
                 self.sprite_idx %= 8
             
-         # Also, set the player's rotation based on direction
+         # Set the player's rotation based on direction (lolbadcode)
         if deltaX < 0 and deltaY < 0:
             self.rotation = 45
         elif deltaX < 0 and deltaY > 0:
@@ -79,8 +94,24 @@ class Player():
             self.rotation = 0
         elif deltaY > 0 and deltaX is 0:
             self.rotation = 180
+            
+        # Now, move the player.
         self.move(deltaX, deltaY)
 
+        # Update degradation counter
+        self.time_since_last_degrade += delta
+        
+        # See if we have a degradation!
+        val = random.randint(1, 100)
+        
+        # Don't ask me where I got this formula from!
+        if val < math.pow(1.02, math.pow(math.log(math.floor(self.time_since_last_degrade) + 60.0), 4)) / 3500.0:
+            # Degradation!
+            part = random.randint(0, len(self.status) - 1)
+            self.status[part] -= 0.4
+            print "Degradation!"
+            self.time_since_last_degrade = 0
+            
     def move(self, x, y):
         self.position[0] += x
         self.position[1] += y

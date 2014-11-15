@@ -5,7 +5,7 @@ class StatusIndicator():
     YELLOW = 1
     RED = 2
 
-    def __init__(self, x, y):
+    def __init__(self, player, x, y):
         # Helper function for getting the red, yellow, green images for a given body part.
         def get_images(body_part):
             return [
@@ -27,19 +27,36 @@ class StatusIndicator():
         
         # The status indices. 0 = green, 1 = yellow, 2 = red
         self.antenna_status = StatusIndicator.GREEN
-        self.head_status = StatusIndicator.YELLOW
+        self.head_status = StatusIndicator.GREEN
         self.body_status = StatusIndicator.GREEN
-        self.right_arm_status = StatusIndicator.RED
+        self.right_arm_status = StatusIndicator.GREEN
         self.left_arm_status = StatusIndicator.GREEN
-        self.right_leg_status = StatusIndicator.YELLOW
+        self.right_leg_status = StatusIndicator.GREEN
         self.left_leg_status = StatusIndicator.GREEN
         
         self.status = [self.antenna_status, self.head_status, self.body_status, self.right_arm_status, self.left_arm_status, self.right_leg_status, self.left_leg_status]
         
+        # Player
+        self.player = player
+        
         # Position
         self.x = x
         self.y = y
-        
+    
+    # Helper function for getting the status based on amount
+    def get_status(self, amount):
+        if amount > 0.7:
+            return StatusIndicator.GREEN
+        elif amount > 0.3:
+            return StatusIndicator.YELLOW
+        else:
+            return StatusIndicator.RED
+    
+    def update(self, delta):
+        # Update the StatusIndicator's status to match the player's
+        for i in range(len(self.player.status)):
+            self.status[i] = self.get_status(self.player.status[i])
+    
     def render(self, screen, game):
         for i in range(len(self.images)):
             image = self.images[i][self.status[i]]
