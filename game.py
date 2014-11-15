@@ -40,3 +40,13 @@ class Game():
     def update(self, delta):
         self.player.update(delta)
         self.status_indicator.update(delta)
+        
+        # Update scraps, making sure to remove any scraps that the player picked up.
+        scraps_to_remove = []
+        for scrap in self.scraps:
+            if scrap.update(delta, self.player):
+                scraps_to_remove.append(scrap)
+       
+        for scrap in scraps_to_remove:
+            self.scraps.remove(scrap)
+      

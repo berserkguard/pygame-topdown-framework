@@ -10,8 +10,8 @@ class Map():
             for y in range(Config.map_size):
                 
                 # Offset map's center by the player's position
-                x_pos = Config.tile_size * x - game.player.position[0] + Config.width / 2
-                y_pos = Config.tile_size * y - game.player.position[1] + Config.height / 2
+                x_pos = Config.tile_size * x - game.player.x + Config.width / 2
+                y_pos = Config.tile_size * y - game.player.y + Config.height / 2
 
                 # Skip tiles that are off screen
                 if x_pos + Config.tile_size < 0 or x_pos - Config.tile_size > Config.width:

@@ -15,8 +15,8 @@ class Scrap():
         
     def render(self, screen, game):
         # Offset map's center by the player's position
-        x_pos = self.x - game.player.position[0] + Config.width / 2
-        y_pos = self.y - game.player.position[1] + Config.height / 2
+        x_pos = self.x - game.player.x + Config.width / 2
+        y_pos = self.y - game.player.y + Config.height / 2
         
         # Don't render scraps that are off screen
         if x_pos + Config.scrap_size < 0 or x_pos - Config.scrap_size > Config.width:
@@ -27,3 +27,17 @@ class Scrap():
         rect.center = (x_pos, y_pos)
         
         screen.blit(self.sprite, rect)
+    
+    # Updates the scrap. Returns true if the scrap is to be removed, else false.
+    def update(self, delta, player):
+        # Offset map's center by the player's position
+        x_pos = self.x - player.x + Config.width / 2
+        y_pos = self.y - player.y + Config.height / 2
+        
+        # Don't update scraps that are off screen
+        if x_pos + Config.scrap_size < 0 or x_pos - Config.scrap_size > Config.width:
+            if y_pos + Config.scrap_size < 0 or y_pos - Config.scrap_size > Config.height:
+                return;
+                
+        return player.in_scrap_range(self)
+            

@@ -20,7 +20,8 @@ class Player():
         self.rotation = 0.0
         
         # Start player in center of map
-        self.position = [Config.map_size * Config.tile_size / 2.0, Config.map_size * Config.tile_size / 2.0]
+        self.x = Config.map_size * Config.tile_size / 2.0
+        self.y = Config.map_size * Config.tile_size / 2.0
         
         # Maximum speed of the player (in pixels/second)
         self.speed = 200.0
@@ -35,6 +36,9 @@ class Player():
         self.left_leg_status = 1.0
         
         self.status = [self.antenna_status, self.head_status, self.body_status, self.right_arm_status, self.left_arm_status, self.right_leg_status, self.left_leg_status]
+        
+        # Variables for player abilities
+        self.pickup_radius = Config.tile_size # Scrap pickup radius (in pixels) 
         
         # Time passed since last body part degradation. Chance of degradation increases with time.
         self.time_since_last_degrade = 0
@@ -94,7 +98,7 @@ class Player():
             self.rotation = 0
         elif deltaY > 0 and deltaX is 0:
             self.rotation = 180
-            
+
         # Now, move the player.
         self.move(deltaX, deltaY)
 
@@ -113,5 +117,11 @@ class Player():
             self.time_since_last_degrade = 0
             
     def move(self, x, y):
-        self.position[0] += x
-        self.position[1] += y
+        self.x += x
+        self.y += y
+    
+    # Returns true if the player is able to pick up the given scrap.
+    def in_scrap_range(self, scrap):
+        squareDist = math.pow(self.x - scrap.x, 2) + math.pow(self.y - scrap.y, 2)
+        return squareDist < math.pow(self.pickup_radius, 2)
+            
