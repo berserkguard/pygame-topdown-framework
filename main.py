@@ -5,15 +5,12 @@ from game import *
 from config import *
 
 def main():
-    # initialize pygame
+    # Initialize Pygame
     pygame.init()
 
-    # create the window
+    # Create the window
     screen = pygame.display.set_mode((Config.width, Config.height))
-
-    # set the window title
     pygame.display.set_caption("The Last Robot")
-
 
     clock = pygame.time.Clock()
 
@@ -21,15 +18,24 @@ def main():
 
     running = True
     while running:
+        # Time since last frame (in seconds)
+        delta = clock.tick() / 1000.0
+        
+        # Handle Pygame events
         for event in pygame.event.get():
-            # quit if the user closes the window
+            # Quit if the user closed the window
             if event.type == pygame.QUIT:
                 running = False
-                
-        game.render()
         
+        # Update the game
+        game.update(delta)
+        
+        # Clear the screen & render the game
+        screen.fill((0, 0, 0))
+        game.render()
         pygame.display.flip()
-            
+    
+    pygame.quit()
 
 if __name__ == '__main__':
     main()

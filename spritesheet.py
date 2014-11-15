@@ -9,7 +9,7 @@ class Spritesheet():
         self.num_cols = self.sheet.get_width() / self.sprite_width
         self.num_rows = self.sheet.get_height() / self.sprite_height
         
-    # Renders the sprite at the given frame index.
+    # Returns the sprite at the given frame index.
     def get_sprite(self, idx):
         x_idx = idx % self.num_cols 
         y_idx = math.floor(idx / self.num_cols)
@@ -19,4 +19,3 @@ class Spritesheet():
         image = pygame.Surface((self.sprite_width, self.sprite_height), flags=pygame.SRCALPHA, depth=32).convert_alpha()
         image.blit(self.sheet, (0, 0), rect)
         return image;
-        
