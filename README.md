@@ -1,28 +1,53 @@
-pygame-topdown-framework
-========================
+The Last Robot
+==============
 
-Framework provided for the Fall 2014 Gamebuildathon
+Game submission for the Fall 2014 twelve-hour Gamebuild-a-thon in Pygame. Created by Ryan Norby (berserkguard).
 
-The goal is to provide the Gamebuildathon participants a basis with which to start their games. This framework implements many simple game features and mechanics that they may or may not decide to use.
 
-Features provided
------------------
-
- * Selection menu
- * Input-controlled movement
- * Automated movement
- * Object oriented organization - player and enemy classes (extends Sprite)
- * Function-based control flow
- * Use of images
- * Collision detection
- * Display text
- * Score
-
-Usage
+Story
 -----
+You are an old robot in a deserted world. Your body is slowly decaying, and there are automated turrets that still see you as a threat. As parts of your body become damaged, you incur status ailments that debilitate you. You must scavenge the barren earth, looking for scrap metal with which to repair yourself. How long can you last?
 
-This framework has been verified to work on EWS machines. It has also been shown to work on Windows machines. You must be using Python 2.7 or older with pygame installed.
 
- * Open a terminal in this directory
- * Run `python`
- * Run the program with `python framework.py`
+Controls
+--------
+WASD: Movement
+
+Walk over scrap to pick them up. Different types of scrap repair different body parts. See the 'Scraps' section below for more information.
+Avoid turrets. The shoot lasers that damage a random body part.
+You lose when all of your body parts are at red damage. There is no way to win.
+
+
+Scraps
+------
+ * Antenna: Repairs your antenna
+ * Claw: Repairs one of your arms (prioritizes arm with more damage)
+ * Cylinder: Repairs one of your legs (prioritizes leg with more damage)
+ * Metal Crate: Repairs your head
+ * Plate Metal: Repairs your body
+ * Spring: Repairs one of your arms (prioritizes arm with more damage)
+
+
+Status Ailments
+-----------------
+Each body part (antenna, head, arms, legs, body) can be in one of three conditions: Green (fully functional), Yellow (mostly functional), Red (barely functional).
+
+The status ailments for yellow damage are as follows:
+ * Antenna: Reduced visibility
+ * Head: Inverted movement controls
+ * Body: Repair amount reduced by 25%
+ * Right Arm: Reduces pickup distance by 25%
+ * Left Arm: Reduces pickup distance by 25%
+ * Right Leg: Reduces movement speed by 25%
+ * Left Leg: Reduces movement speed by 25%
+
+The status ailments for red damage are as follows:
+ * Antenna: Greatly reduced visibility
+ * Head: Randomized movement controls (on a 20% chance)
+ * Body: Repair amount reduced by 50%
+ * Right Arm: Reduces pickup distance by 50%
+ * Left Arm: Reduces pickup distance by 50%
+ * Right Leg: Reduces movement speed by 50%
+ * Left Leg: Reduces movement speed by 50%
+
+Debilitation for right arm and left arm do not stack. The more damaged one will be the one whose status ailment is chosen. Likewise for right leg and left leg.
