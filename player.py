@@ -94,7 +94,7 @@ class Player():
         
         # For red head, random controls!
         elif self.get_status(self.status[1]) is StatusIndicator.RED:
-            val = random.rand_int(1, 25)
+            val = random.randint(1, 25)
             if val is 1:
                 deltaX += self.speed * delta
             elif val is 2:
