@@ -81,14 +81,19 @@ class Player():
         deltaX = 0
         deltaY = 0
         
-        modifier = 1;
-        
         # Invert controls for yellow head
-        if self.get_status(self.head_status) is StatusIndicator.YELLOW:
-            modifier = -1
+        if self.get_status(self.status[1]) is StatusIndicator.YELLOW:
+            if keys[pygame.K_w]:
+                deltaY += self.speed * delta
+            if keys[pygame.K_s]:
+                deltaY -= self.speed * delta
+            if keys[pygame.K_a]:
+                deltaX += self.speed * delta
+            if keys[pygame.K_d]:
+                deltaX -= self.speed * delta
         
         # For red head, random controls!
-        if self.get_status(self.head_status) is StatusIndicator.RED:
+        elif self.get_status(self.status[1]) is StatusIndicator.RED:
             val = random.rand_int(1, 25)
             if val is 1:
                 deltaX += self.speed * delta
@@ -110,13 +115,13 @@ class Player():
                     deltaX += self.speed * delta
         else:
             if keys[pygame.K_w]:
-                deltaY -= modifier * self.speed * delta
+                deltaY -= self.speed * delta
             if keys[pygame.K_s]:
-                deltaY += modifier * self.speed * delta
+                deltaY += self.speed * delta
             if keys[pygame.K_a]:
-                deltaX -= modifier * self.speed * delta
+                deltaX -= self.speed * delta
             if keys[pygame.K_d]:
-                deltaX += modifier * self.speed * delta
+                deltaX += self.speed * delta
         
         # If moving diagonal, divide by sqrt(2) so maximum speed stays the same
         if deltaX is not 0 and deltaY is not 0:
@@ -153,10 +158,10 @@ class Player():
             self.rotation = 180
 
         # Leg ailment
-        if self.get_status(self.right_leg_status) is StatusIndicator.RED or self.get_status(self.left_leg_status) is StatusIndicator.RED:
+        if self.get_status(self.status[5]) is StatusIndicator.RED or self.get_status(self.status[6]) is StatusIndicator.RED:
             deltaX *= 0.5
             deltaY *= 0.5
-        elif self.get_status(self.right_leg_status) is StatusIndicator.YELLOW or self.get_status(self.left_leg_status) is StatusIndicator.YELLOW:
+        elif self.get_status(self.status[5]) is StatusIndicator.YELLOW or self.get_status(self.status[6]) is StatusIndicator.YELLOW:
             deltaX *= 0.75
             deltaY *= 0.75
         
@@ -233,9 +238,9 @@ class Player():
         rad = self.pickup_radius
         
         # Arm ailments
-        if self.get_status(self.right_arm_status) is StatusIndicator.RED or self.get_status(self.left_arm_status) is StatusIndicator.RED:
+        if self.get_status(self.status[3]) is StatusIndicator.RED or self.get_status(self.status[4]) is StatusIndicator.RED:
             rad *= 0.5
-        elif self.get_status(self.right_arm_status) is StatusIndicator.YELLOW or self.get_status(self.left_arm_status) is StatusIndicator.YELLOW:
+        elif self.get_status(self.status[3]) is StatusIndicator.YELLOW or self.get_status(self.status[4]) is StatusIndicator.YELLOW:
             rad *= 0.75
 
         squareDist = math.pow(self.x - scrap.x, 2) + math.pow(self.y - scrap.y, 2)
@@ -248,9 +253,9 @@ class Player():
         rep_amt = Config.repair_amount
         
         # Body ailments
-        if self.get_status(self.body_status) is StatusIndicator.RED:
+        if self.get_status(self.status[2]) is StatusIndicator.RED:
             rep_amt *= 0.5
-        elif self.get_status(self.body_status) is StatusIndicator.YELLOW:
+        elif self.get_status(self.status[2]) is StatusIndicator.YELLOW:
             rep_amt *= 0.75
 
 

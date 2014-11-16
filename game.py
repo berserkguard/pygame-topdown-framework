@@ -13,6 +13,9 @@ class Game():
         self.player = Player(self)
         self.map = Map()
         
+        self.small_fog = pygame.image.load('assets/fog_small.png').convert_alpha()
+        self.big_fog = pygame.image.load('assets/fog_big.png').convert_alpha()
+        
         self.turret_images = TurretImages()
         self.turrets = []
         self.lasers = []
@@ -71,6 +74,18 @@ class Game():
         
         # Render player
         self.player.render(self.screen)
+        
+        # Render fog (if active)
+        if self.player.get_status(self.player.status[0]) is StatusIndicator.YELLOW:
+            rect = self.small_fog.get_rect()
+            rect.center = (Config.width / 2, Config.height / 2)
+            
+            self.screen.blit(self.small_fog, rect)
+        elif self.player.get_status(self.player.status[0]) is StatusIndicator.RED:
+            rect = self.big_fog.get_rect()
+            rect.center = (Config.width / 2, Config.height / 2)
+            
+            self.screen.blit(self.big_fog, rect)
         
         # Render UI
         self.status_indicator.render(self.screen, self)
