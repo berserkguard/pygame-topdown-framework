@@ -1,7 +1,7 @@
 class Config():
     # Width & Height of the screen
-    width = 800
-    height = 600
+    width = 1024
+    height = 768
     
     # Size of the map (in tiles)
     map_size = 100
@@ -17,6 +17,9 @@ class Config():
     
     # Percentage a part can degrade by at a time
     degrade_amount = 0.3
+    
+    # Percentage a part can be repaired by a scrap
+    repair_amount = 0.2
     
     # Scrap gravitation speed (in pixels/second)
     scrap_gravitation_speed = 250

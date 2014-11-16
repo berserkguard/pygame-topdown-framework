@@ -42,20 +42,11 @@ class StatusIndicator():
         # Position
         self.x = x
         self.y = y
-    
-    # Helper function for getting the status based on amount
-    def get_status(self, amount):
-        if amount > 0.7:
-            return StatusIndicator.GREEN
-        elif amount > 0.3:
-            return StatusIndicator.YELLOW
-        else:
-            return StatusIndicator.RED
-    
+        
     def update(self, delta):
         # Update the StatusIndicator's status to match the player's
         for i in range(len(self.player.status)):
-            self.status[i] = self.get_status(self.player.status[i])
+            self.status[i] = self.player.get_status(self.player.status[i])
     
     def render(self, screen, game):
         for i in range(len(self.images)):

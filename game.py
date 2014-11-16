@@ -5,18 +5,19 @@ from map import *
 from status_indicator import *
 from scrap import *
 from message_util import *
+from config import *
 
 class Game():
     def __init__(self):
         self.player = Player(self)
         self.map = Map()
         
+        self.ailment_texts = []
+        
         self.message_util = MessageUtil()
         
-        self.message_util.add_message(Message("This is a test!", (0, 255, 0)))
-        
         self.screen = pygame.display.get_surface()
-        self.status_indicator = StatusIndicator(self.player, 10, 350)
+        self.status_indicator = StatusIndicator(self.player, 10, Config.height - 250)
 
         self.scrap_types = ScrapTypes()
 
@@ -57,6 +58,12 @@ class Game():
         # Render timer
         timer_text = "%02d:%02d" % (int(self.timer / 60), int(self.timer) % 60)
         self.message_util.render_text(self.screen, timer_text, 10, 0, self.message_util.big_font, (0, 255, 255))
+        
+        # Render status ailments
+        start_y = Config.height - 40
+        for msg in self.ailment_texts:
+            self.message_util.render_text(self.screen, msg, 160, start_y, self.message_util.font, (255, 0, 0))
+            start_y -= 30
         
     def update(self, delta):
         self.player.update(delta)

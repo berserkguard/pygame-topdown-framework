@@ -4,6 +4,7 @@ import random
 from config import *
 from spritesheet import *
 from message_util import *
+from status_indicator import *
 
 class Player():
     def __init__(self, game):
@@ -40,6 +41,25 @@ class Player():
         
         self.status = [self.antenna_status, self.head_status, self.body_status, self.right_arm_status, self.left_arm_status, self.right_leg_status, self.left_leg_status]
         self.part_names = ["antenna", "head", "body", "right arm", "left arm", "right leg", "left leg"]
+        
+        self.yellow_ailment_descriptions = [
+            "Reduced minimap visibility.",
+            "Inverted movement controls.",
+            "Reduced repair ability.",
+            "Reduced pickup distance (right arm).",
+            "Reduced pickup distance (left arm).",
+            "Reduced movement speed (right leg).",
+            "Reduced movement speed (left leg)."
+        ]
+        self.red_ailment_descriptions = [
+            "Greatly reduced minimap visibility.",
+            "Randomized movement controls.",
+            "Greatly reduced repair ability.",
+            "Greatly reduced pickup distance (right arm).",
+            "Greatly reduced pickup distance (left arm).",
+            "Greatly reduced movement speed (right leg).",
+            "Greatly reduced movement speed (left leg)."
+        ]
         
         # Variables for player abilities
         self.pickup_radius = Config.tile_size # Scrap pickup radius (in pixels) 
@@ -113,17 +133,58 @@ class Player():
         val = random.randint(1, 100)
         
         # Don't ask me where I got this formula from!
-        if val < math.pow(1.02, math.pow(math.log(math.floor(self.time_since_last_degrade) + 60.0), 4)) / 3500.0:
+        if val < math.pow(1.02, math.pow(math.log(math.floor(self.time_since_last_degrade) + 60.0), 4)) / 3500.0 * 2.0:
             # Degradation!
             part = random.randint(0, len(self.status) - 1)
-            self.status[part] -= Config.degrade_amount
-            self.game.message_util.add_message(Message("Your %s has degraded! Current durability: %d%%" % (self.part_names[part], int(self.status[part] * 100)), (255, 0, 0)))
+            self.degrade_part(part, Config.degrade_amount)
             self.time_since_last_degrade = 0
             
     def move(self, x, y):
         self.x += x
         self.y += y
     
+    # Helper function for getting the status based on amount
+    def get_status(self, amount):
+        if amount > 0.7:
+            return StatusIndicator.GREEN
+        elif amount > 0.3:
+            return StatusIndicator.YELLOW
+        else:
+            return StatusIndicator.RED
+    
+    # Degrades the part by the given amount
+    def degrade_part(self, part_idx, amount):
+        self.status[part_idx] = max(self.status[part_idx] - Config.degrade_amount, 0)
+        
+        part_status = self.get_status(self.status[part_idx])
+        part_name = self.part_names[part_idx]
+        part_durability = int(self.status[part_idx] * 100)
+        if part_status is StatusIndicator.YELLOW:
+            base_str = "Your %s is mildly damaged! Durability: %d%%"
+            self.game.message_util.add_message(Message(base_str % (part_name, part_durability), (255, 0, 0)))
+        elif part_status is StatusIndicator.RED:
+            base_str = "Your %s is critically damaged! Durability: %d%%"
+            self.game.message_util.add_message(Message(base_str % (part_name, part_durability), (255, 0, 0)))
+        else:
+            base_str = "Your %s has degraded! Current durability: %d%%"
+            self.game.message_util.add_message(Message(base_str % (part_name, part_durability), (255, 0, 0)))
+        
+        self.refresh_ailments()
+    
+    # Refreshes the ailments
+    def refresh_ailments(self):
+        self.game.ailment_texts = []
+        
+        for i in range(len(self.status)):
+            part = self.part_names[i]
+            status = self.get_status(self.status[i])
+            
+            # If we have a status ailment, add to game.ailment_texts
+            if status is StatusIndicator.YELLOW:
+                self.game.ailment_texts.append(self.yellow_ailment_descriptions[i])
+            elif status is StatusIndicator.RED:
+                self.game.ailment_texts.append(self.red_ailment_descriptions[i])
+            
     # Returns true if the player is able to pick up the given scrap.
     def in_scrap_range(self, scrap):
         squareDist = math.pow(self.x - scrap.x, 2) + math.pow(self.y - scrap.y, 2)
@@ -152,7 +213,11 @@ class Player():
             else:
                 part_name = "right leg"
 
-        part_durability = int(self.status[self.part_names.index(part_name)] * 100)
+        part_idx = self.part_names.index(part_name)
+        self.status[part_idx] = min(self.status[part_idx] + Config.repair_amount, 1.0)
+        part_durability = int(self.status[part_idx] * 100)
         self.game.message_util.add_message(Message("Scrap acquired: %s [part: %s, durability: %d%%]" % (scrap_name, part_name, part_durability), (0, 255, 0)))
+        
+        self.refresh_ailments()
         
     

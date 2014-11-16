@@ -4,7 +4,7 @@ from config import *
 class Message():
     def __init__(self, msg_text, color):
         self.msg_text = msg_text
-        self.color = color # 4-tuple (r, g, b, a)
+        self.color = color # As 3-tuple: (r, g, b)
         self.x = Config.message_x
         self.y = Config.message_y
         self.time_passed = 0
@@ -12,7 +12,10 @@ class Message():
     # Updates message. Returns true when message should be removed. 
     def update(self, delta):
         self.time_passed += delta
-        self.y -= Config.message_scroll_speed * delta
+        
+        # Let the message stay in place for a second, then scroll
+        if self.time_passed >= 1.0:
+            self.y -= Config.message_scroll_speed * delta
         
         return self.time_passed >= Config.message_duration
 
