@@ -124,4 +124,8 @@ class Player():
     def in_scrap_range(self, scrap):
         squareDist = math.pow(self.x - scrap.x, 2) + math.pow(self.y - scrap.y, 2)
         return squareDist < math.pow(self.pickup_radius, 2)
-            
+    
+    # Handles logic for player picking up a scrap.
+    def acquire_scrap(self, scrap):
+        print "SCRAP ACQUIRED"
+    

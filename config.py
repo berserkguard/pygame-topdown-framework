@@ -14,3 +14,6 @@ class Config():
     
     # Number of scraps per tile
     scrap_density = 0.02
+    
+    # Scrap gravitation speed (in pixels/second)
+    scrap_gravitation_speed = 250

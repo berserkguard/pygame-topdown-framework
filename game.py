@@ -15,7 +15,11 @@ class Game():
 
         self.scrap_types = ScrapTypes()
 
+        # A list of scraps on the map
         self.scraps = []
+        
+        # A list of scraps that have been picked up and are animating
+        self.scrap_pickups = []
         
         num_scraps = Config.map_size * Config.map_size * Config.scrap_density
         for i in range(int(num_scraps)):
@@ -28,7 +32,11 @@ class Game():
     def render(self):
         self.map.render(self.screen, self)
         
+        # Render scraps
         for scrap in self.scraps:
+            scrap.render(self.screen, self)
+        
+        for scrap in self.scrap_pickups:
             scrap.render(self.screen, self)
         
         self.player.render(self.screen, self)
@@ -46,7 +54,30 @@ class Game():
         for scrap in self.scraps:
             if scrap.update(delta, self.player):
                 scraps_to_remove.append(scrap)
-       
+                self.scrap_pickups.append(scrap)
+        
         for scrap in scraps_to_remove:
             self.scraps.remove(scrap)
+        
+        # Animate picked-up scraps by having them gravitate to the player
+        scraps_to_remove = []
+        for scrap in self.scrap_pickups:
+            x_delta = self.player.x - scrap.x
+            y_delta = self.player.y - scrap.y
+            if x_delta > 0:
+                scrap.x += min(x_delta, Config.scrap_gravitation_speed * delta)
+            elif x_delta < 0:
+                scrap.x -= min(math.fabs(x_delta), Config.scrap_gravitation_speed * delta)
+            
+            if y_delta > 0:
+                scrap.y += min(y_delta, Config.scrap_gravitation_speed * delta)
+            elif y_delta < 0:
+                scrap.y -= min(math.fabs(y_delta), Config.scrap_gravitation_speed * delta)
+       
+            if math.fabs(x_delta) < Config.scrap_size and math.fabs(y_delta) < Config.scrap_size:
+                scraps_to_remove.append(scrap)
+       
+        for scrap in scraps_to_remove:
+            self.player.acquire_scrap(scrap)
+            self.scrap_pickups.remove(scrap)
       
