@@ -26,6 +26,9 @@ class Game():
         # A list of scraps that have been picked up and are animating
         self.scrap_pickups = []
         
+        # Number of seconds since game started
+        self.timer = 0
+        
         num_scraps = Config.map_size * Config.map_size * Config.scrap_density
         for i in range(int(num_scraps)):
             x_pos = random.randint(0, Config.map_size * Config.tile_size)
@@ -50,6 +53,10 @@ class Game():
         self.status_indicator.render(self.screen, self)
         
         self.message_util.render(self.screen)
+        
+        # Render timer
+        timer_text = "%02d:%02d" % (int(self.timer / 60), int(self.timer) % 60)
+        self.message_util.render_text(self.screen, timer_text, 10, 0, self.message_util.big_font, (0, 255, 255))
         
     def update(self, delta):
         self.player.update(delta)
@@ -89,4 +96,7 @@ class Game():
         
         # Update messages
         self.message_util.update(delta)
+        
+        # Update timer
+        self.timer += delta
       

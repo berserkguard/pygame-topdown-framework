@@ -134,7 +134,7 @@ class Player():
         scrap_name = self.game.scrap_types.names[scrap.idx]
         part_name = self.game.scrap_types.parts[scrap.idx]
 
-        # Prioritize arm & leg with lower durability
+        # Prioritize arm & leg with lower durability (also pretty ugly...)
         if part_name is 'arm':
             right_arm_durability = int(self.status[self.part_names.index("right arm")] * 100)
             left_arm_durability = int(self.status[self.part_names.index("left arm")] * 100)
