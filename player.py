@@ -3,9 +3,12 @@ import math
 import random
 from config import *
 from spritesheet import *
+from message_util import *
 
 class Player():
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game
+    
         # Spritesheet stuff
         self.spritesheet = Spritesheet('assets/robot_top_strip.png', 64, 64)
         self.sprite_idx = 0
@@ -36,6 +39,7 @@ class Player():
         self.left_leg_status = 1.0
         
         self.status = [self.antenna_status, self.head_status, self.body_status, self.right_arm_status, self.left_arm_status, self.right_leg_status, self.left_leg_status]
+        self.part_names = ["antenna", "head", "body", "right arm", "left arm", "right leg", "left leg"]
         
         # Variables for player abilities
         self.pickup_radius = Config.tile_size # Scrap pickup radius (in pixels) 
@@ -43,7 +47,7 @@ class Player():
         # Time passed since last body part degradation. Chance of degradation increases with time.
         self.time_since_last_degrade = 0
         
-    def render(self, screen, game):
+    def render(self, screen):
         sprite = self.spritesheet.get_sprite(self.sprite_idx)
         rotated = pygame.transform.rotate(sprite, self.rotation)
         
@@ -112,8 +116,8 @@ class Player():
         if val < math.pow(1.02, math.pow(math.log(math.floor(self.time_since_last_degrade) + 60.0), 4)) / 3500.0:
             # Degradation!
             part = random.randint(0, len(self.status) - 1)
-            self.status[part] -= 0.4
-            print "Degradation!"
+            self.status[part] -= Config.degrade_amount
+            self.game.message_util.add_message(Message("Your %s has degraded! Current durability: %d%%" % (self.part_names[part], int(self.status[part] * 100)), (255, 0, 0)))
             self.time_since_last_degrade = 0
             
     def move(self, x, y):
@@ -127,5 +131,28 @@ class Player():
     
     # Handles logic for player picking up a scrap.
     def acquire_scrap(self, scrap):
-        print "SCRAP ACQUIRED"
+        scrap_name = self.game.scrap_types.names[scrap.idx]
+        part_name = self.game.scrap_types.parts[scrap.idx]
+
+        # Prioritize arm & leg with lower durability
+        if part_name is 'arm':
+            right_arm_durability = int(self.status[self.part_names.index("right arm")] * 100)
+            left_arm_durability = int(self.status[self.part_names.index("left arm")] * 100)
+            
+            if left_arm_durability < right_arm_durability:
+                part_name = "left arm"
+            else:
+                part_name = "right arm"
+        elif part_name is 'leg':
+            right_leg_durability = int(self.status[self.part_names.index("right leg")] * 100)
+            left_leg_durability = int(self.status[self.part_names.index("left leg")] * 100)
+            
+            if left_leg_durability < right_leg_durability:
+                part_name = "left leg"
+            else:
+                part_name = "right leg"
+
+        part_durability = int(self.status[self.part_names.index(part_name)] * 100)
+        self.game.message_util.add_message(Message("Scrap acquired: %s [part: %s, durability: %d%%]" % (scrap_name, part_name, part_durability), (0, 255, 0)))
+        
     

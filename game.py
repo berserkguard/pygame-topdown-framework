@@ -4,11 +4,16 @@ from player import *
 from map import *
 from status_indicator import *
 from scrap import *
+from message_util import *
 
 class Game():
     def __init__(self):
-        self.player = Player()
+        self.player = Player(self)
         self.map = Map()
+        
+        self.message_util = MessageUtil()
+        
+        self.message_util.add_message(Message("This is a test!", (0, 255, 0)))
         
         self.screen = pygame.display.get_surface()
         self.status_indicator = StatusIndicator(self.player, 10, 350)
@@ -39,11 +44,12 @@ class Game():
         for scrap in self.scrap_pickups:
             scrap.render(self.screen, self)
         
-        self.player.render(self.screen, self)
+        self.player.render(self.screen)
         
         # Render UI
         self.status_indicator.render(self.screen, self)
         
+        self.message_util.render(self.screen)
         
     def update(self, delta):
         self.player.update(delta)
@@ -80,4 +86,7 @@ class Game():
         for scrap in scraps_to_remove:
             self.player.acquire_scrap(scrap)
             self.scrap_pickups.remove(scrap)
+        
+        # Update messages
+        self.message_util.update(delta)
       

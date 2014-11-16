@@ -4,11 +4,14 @@ from config import *
 class ScrapTypes():
     def __init__(self):
         files = ["antenna", "claw", "cylinder", "metal_crate", "plate_metal", "spring"]
+        self.names = ["antenna", "claw", "cylinder", "metal crate", "plate metal", "spring"]
+        self.parts = ["antenna", "arm", "leg", "head", "body", "arm"]
         self.images = [pygame.image.load('assets/scrap/' + files[idx] + '.png').convert_alpha() for idx in range(len(files))]
      
 
 class Scrap():
     def __init__(self, scrap_types, idx, x, y):
+        self.idx = idx
         self.sprite = scrap_types.images[idx]
         self.x = x
         self.y = y
