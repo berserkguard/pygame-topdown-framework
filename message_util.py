@@ -38,8 +38,11 @@ class MessageUtil():
         for message in messages_to_remove:
             self.messages.remove(message)
     
-    def render_text(self, screen, text, x_pos, y_pos, font, color):
+    def render_text(self, screen, text, x_pos, y_pos, font, color, center = False):
         label_width, label_height = font.size(text)
+
+        if center: 
+            x_pos = x_pos - label_width / 2
 
         # Render outline
         outline = font.render(text, 1, (0, 0, 0))

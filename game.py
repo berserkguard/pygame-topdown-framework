@@ -6,12 +6,25 @@ from status_indicator import *
 from scrap import *
 from message_util import *
 from config import *
+from turret import *
 
 class Game():
     def __init__(self):
         self.player = Player(self)
         self.map = Map()
         
+        self.turret_images = TurretImages()
+        self.turrets = []
+        self.lasers = []
+        
+        # Add turrets
+        num_turrets = Config.map_size * Config.map_size * Config.turret_density
+        for i in range(int(num_turrets)):
+            x_pos = random.randint(0, Config.map_size * Config.tile_size)
+            y_pos = random.randint(0, Config.map_size * Config.tile_size)
+            
+            self.turrets.append(Turret(self.turret_images, x_pos, y_pos))
+
         self.ailment_texts = []
         
         self.message_util = MessageUtil()
@@ -48,6 +61,15 @@ class Game():
         for scrap in self.scrap_pickups:
             scrap.render(self.screen, self)
         
+        # Render turrets
+        for turret in self.turrets:
+            turret.render(self.screen, self)
+        
+        # Render lasers
+        for laser in self.lasers:
+            laser.render(self.screen, self)
+        
+        # Render player
         self.player.render(self.screen)
         
         # Render UI
@@ -66,7 +88,10 @@ class Game():
             start_y -= 30
         
     def update(self, delta):
-        self.player.update(delta)
+        if self.player.update(delta):
+            # Player died! Propagate
+            return True
+            
         self.status_indicator.update(delta)
         
         # Update scraps, making sure to remove any scraps that the player picked up.
@@ -106,4 +131,20 @@ class Game():
         
         # Update timer
         self.timer += delta
-      
+        
+        # Update turrets
+        for turret in self.turrets:
+            turret.update(delta, self)
+        
+        # Update lasers
+        lasers_to_remove = []
+        for laser in self.lasers:
+            if laser.update(delta, self):
+                lasers_to_remove.append(laser)
+        
+        for laser in lasers_to_remove:
+            self.lasers.remove(laser)
+        
+        # Keep going
+        return False
+            

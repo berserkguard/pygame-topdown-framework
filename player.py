@@ -43,22 +43,22 @@ class Player():
         self.part_names = ["antenna", "head", "body", "right arm", "left arm", "right leg", "left leg"]
         
         self.yellow_ailment_descriptions = [
-            "Reduced minimap visibility.",
+            "Reduced visibility.",
             "Inverted movement controls.",
-            "Reduced repair ability.",
-            "Reduced pickup distance (right arm).",
-            "Reduced pickup distance (left arm).",
-            "Reduced movement speed (right leg).",
-            "Reduced movement speed (left leg)."
+            "Repair amount reduced by 25%.",
+            "Reduces pickup distance by 25% (right arm).",
+            "Reduces pickup distance by 25% (left arm).",
+            "Reduces movement speed by 25% (right leg).",
+            "Reduces movement speed by 25% (left leg)."
         ]
         self.red_ailment_descriptions = [
-            "Greatly reduced minimap visibility.",
-            "Randomized movement controls.",
-            "Greatly reduced repair ability.",
-            "Greatly reduced pickup distance (right arm).",
-            "Greatly reduced pickup distance (left arm).",
-            "Greatly reduced movement speed (right leg).",
-            "Greatly reduced movement speed (left leg)."
+            "Greatly reduced visibility.",
+            "Randomized movement controls (20% chance).",
+            "Repair amount reduced by 50%.",
+            "Reduces pickup distance by 50% (right arm).",
+            "Reduces pickup distance by 50% (left arm).",
+            "Reduces movement speed by 50% (right leg).",
+            "Reduces movement speed by 50% (left leg)."
         ]
         
         # Variables for player abilities
@@ -80,14 +80,43 @@ class Player():
         keys = pygame.key.get_pressed()
         deltaX = 0
         deltaY = 0
-        if keys[pygame.K_w]:
-            deltaY -= self.speed * delta
-        if keys[pygame.K_s]:
-            deltaY += self.speed * delta
-        if keys[pygame.K_a]:
-            deltaX -= self.speed * delta
-        if keys[pygame.K_d]:
-            deltaX += self.speed * delta
+        
+        modifier = 1;
+        
+        # Invert controls for yellow head
+        if self.get_status(self.head_status) is StatusIndicator.YELLOW:
+            modifier = -1
+        
+        # For red head, random controls!
+        if self.get_status(self.head_status) is StatusIndicator.RED:
+            val = random.rand_int(1, 25)
+            if val is 1:
+                deltaX += self.speed * delta
+            elif val is 2:
+                deltaY += self.speed * delta
+            elif val is 3:
+                deltaY -= self.speed * delta
+            elif val is 4:
+                deltaX -= self.speed * delta
+            else:
+                # Normal controls 80% of the time
+                if keys[pygame.K_w]:
+                    deltaY -= self.speed * delta
+                if keys[pygame.K_s]:
+                    deltaY += self.speed * delta
+                if keys[pygame.K_a]:
+                    deltaX -= self.speed * delta
+                if keys[pygame.K_d]:
+                    deltaX += self.speed * delta
+        else:
+            if keys[pygame.K_w]:
+                deltaY -= modifier * self.speed * delta
+            if keys[pygame.K_s]:
+                deltaY += modifier * self.speed * delta
+            if keys[pygame.K_a]:
+                deltaX -= modifier * self.speed * delta
+            if keys[pygame.K_d]:
+                deltaX += modifier * self.speed * delta
         
         # If moving diagonal, divide by sqrt(2) so maximum speed stays the same
         if deltaX is not 0 and deltaY is not 0:
@@ -123,6 +152,14 @@ class Player():
         elif deltaY > 0 and deltaX is 0:
             self.rotation = 180
 
+        # Leg ailment
+        if self.get_status(self.right_leg_status) is StatusIndicator.RED or self.get_status(self.left_leg_status) is StatusIndicator.RED:
+            deltaX *= 0.5
+            deltaY *= 0.5
+        elif self.get_status(self.right_leg_status) is StatusIndicator.YELLOW or self.get_status(self.left_leg_status) is StatusIndicator.YELLOW:
+            deltaX *= 0.75
+            deltaY *= 0.75
+        
         # Now, move the player.
         self.move(deltaX, deltaY)
 
@@ -138,7 +175,13 @@ class Player():
             part = random.randint(0, len(self.status) - 1)
             self.degrade_part(part, Config.degrade_amount)
             self.time_since_last_degrade = 0
-            
+        
+        # Check for lose condition (all parts red)
+        for i in range(len(self.status) - 1):
+            if self.get_status(self.status[i]) != StatusIndicator.RED:
+                return False
+        return True
+        
     def move(self, x, y):
         self.x += x
         self.y += y
@@ -187,13 +230,29 @@ class Player():
             
     # Returns true if the player is able to pick up the given scrap.
     def in_scrap_range(self, scrap):
+        rad = self.pickup_radius
+        
+        # Arm ailments
+        if self.get_status(self.right_arm_status) is StatusIndicator.RED or self.get_status(self.left_arm_status) is StatusIndicator.RED:
+            rad *= 0.5
+        elif self.get_status(self.right_arm_status) is StatusIndicator.YELLOW or self.get_status(self.left_arm_status) is StatusIndicator.YELLOW:
+            rad *= 0.75
+
         squareDist = math.pow(self.x - scrap.x, 2) + math.pow(self.y - scrap.y, 2)
-        return squareDist < math.pow(self.pickup_radius, 2)
+        return squareDist < math.pow(rad, 2)
     
     # Handles logic for player picking up a scrap.
     def acquire_scrap(self, scrap):
         scrap_name = self.game.scrap_types.names[scrap.idx]
         part_name = self.game.scrap_types.parts[scrap.idx]
+        rep_amt = Config.repair_amount
+        
+        # Body ailments
+        if self.get_status(self.body_status) is StatusIndicator.RED:
+            rep_amt *= 0.5
+        elif self.get_status(self.body_status) is StatusIndicator.YELLOW:
+            rep_amt *= 0.75
+
 
         # Prioritize arm & leg with lower durability (also pretty ugly...)
         if part_name is 'arm':

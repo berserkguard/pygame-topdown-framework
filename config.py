@@ -12,8 +12,13 @@ class Config():
     # Size of a scrap (in pixels)
     scrap_size = 32
     
+    # Size of turret (in pixels)
+    turret_size = 64
+    
     # Number of scraps per tile
-    scrap_density = 0.02
+    scrap_density = 0.03
+    
+    turret_density = 0.01
     
     # Percentage a part can degrade by at a time
     degrade_amount = 0.3
@@ -33,3 +38,6 @@ class Config():
     
     # Message scroll speed (in pixels/second)
     message_scroll_speed = 80
+    
+    # Turret maximum tracking distance (in pixels)
+    turret_track_distance = 350
